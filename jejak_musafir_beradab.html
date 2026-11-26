@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jejak Musafir Beradab: Saya Faham, Saya Amalkan!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tone.js untuk muzik latar dan kesan bunyi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Google Fonts yang moden, ceria & sesuai untuk umur 11 tahun -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #dcfce7 35%, #fef9c3 70%, #ffedd5 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .font-fredoka {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Butang gaya interaktif moden */
+        .btn-action {
+            transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 5px 0 rgba(15, 23, 42, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.85);
+        }
+        .btn-action:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 rgba(15, 23, 42, 0.15);
+        }
+        .btn-action:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 rgba(15, 23, 42, 0.15);
+        }
+        .btn-action:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        /* Animasi terapung lembut */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-7px); }
+        }
+        .animate-float {
+            animation: floatSlow 3.5s ease-in-out infinite;
+        }
+
+        /* Animasi kemunculan item ikrar secara berperingkat */
+        @keyframes slideInRight {
+            0% { opacity: 0; transform: translateX(-20px) scale(0.97); }
+            100% { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        .ikrar-item {
+            opacity: 0;
+            transition: all 0.35s ease;
+        }
+        .ikrar-item.visible {
+            animation: slideInRight 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .ikrar-item.reading-now {
+            background-color: #fef08a !important;
+            border-color: #f59e0b !important;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+        }
+
+        /* Animasi pop untuk lencana dan kad */
+        @keyframes badgePop {
+            0% { transform: scale(0.5) rotate(-8deg); opacity: 0; }
+            70% { transform: scale(1.08) rotate(2deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .animate-badge {
+            animation: badgePop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* Konfeti & bintang */
+        @keyframes particleFly {
+            0% { transform: translate(0, 0) scale(0.6) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(1.2) rotate(320deg); opacity: 0; }
+        }
+        .celebration-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            animation: particleFly 1.3s ease-out forwards;
+        }
+
+        /* Kad pilihan papan refleksi */
+        .choice-pill {
+            transition: all 0.2s ease;
+            border: 3px solid #e2e8f0;
+        }
+        .choice-pill:hover {
+            border-color: #38bdf8;
+            background-color: #f0f9ff;
+        }
+        .choice-pill.checked {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
+        }
+        .choice-pill.gentle-note {
+            border-color: #fb923c;
+            background-color: #fff7ed;
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col items-center justify-between p-3 sm:p-6">
+
+    <!-- =================================================================== -->
+    <!-- KEPALA HALAMAN & KAWALAN AUDIO                                      -->
+    <!-- =================================================================== -->
+    <header class="w-full max-w-5xl bg-white/95 backdrop-blur-md rounded-3xl p-4 sm:px-6 shadow-md border-4 border-sky-200 flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-sky-400 to-emerald-400 text-white flex items-center justify-center text-2xl sm:text-3xl shadow-sm shrink-0">
+                🗺️
+            </div>
+            <div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full border border-amber-300">
+                        Pendidikan Islam Tahun 5
+                    </span>
+                    <span class="text-xs font-bold text-sky-700 bg-sky-100 px-2.5 py-0.5 rounded-full">
+                        Adab Menaiki Kenderaan
+                    </span>
+                </div>
+                <h1 class="text-base sm:text-xl md:text-2xl font-bold text-slate-800 mt-1 leading-tight">
+                    JEJAK MUSAFIR BERADAB: SAYA FAHAM, SAYA AMALKAN!
+                </h1>
+            </div>
+        </div>
+
+        <!-- Kawalan Audio -->
+        <div class="flex items-center gap-2">
+            <button id="btn-music" onclick="toggleMusic()" class="btn-action bg-orange-100 hover:bg-orange-200 text-orange-900 font-bold px-3.5 py-2 rounded-2xl flex items-center gap-2 text-xs sm:text-sm">
+                <span id="music-icon" class="text-base">🎵</span>
+                <span id="music-label">Muzik: Tutup</span>
+            </button>
+            <button id="btn-sfx" onclick="toggleSfx()" class="btn-action bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold px-3.5 py-2 rounded-2xl flex items-center gap-2 text-xs sm:text-sm">
+                <span id="sfx-icon" class="text-base">🔊</span>
+                <span id="sfx-label">Bunyi: Buka</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- =================================================================== -->
+    <!-- PETA KEMAJUAN MURID (JEJAK AKTIVITI)                                -->
+    <!-- =================================================================== -->
+    <nav aria-label="Kemajuan Pembelajaran" class="w-full max-w-5xl bg-white/85 rounded-2xl p-3 sm:px-6 mb-5 border-2 border-white shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+            <span class="text-xs sm:text-sm font-extrabold text-slate-600 flex items-center gap-1.5">
+                <span>🧭</span> Peta Jejak Musafir Kamu:
+            </span>
+            <span id="progress-status-text" class="text-xs sm:text-sm font-bold text-sky-700 bg-sky-100 px-3 py-0.5 rounded-full self-start sm:self-auto">
+                Langkah 1 daripada 3: Ikrar Kendiri
+            </span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 sm:gap-4">
+            <button onclick="navigateTo(1)" id="nav-step-1" class="flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm bg-sky-500 text-white shadow-sm transition-all">
+                <span>1️⃣</span>
+                <span class="truncate">Ikrar Kendiri</span>
+                <span id="check-step-1" class="hidden">✅</span>
+            </button>
+            <button onclick="navigateTo(2)" id="nav-step-2" class="flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 text-slate-500 transition-all">
+                <span>2️⃣</span>
+                <span class="truncate">Papan Refleksi</span>
+                <span id="check-step-2" class="hidden">✅</span>
+            </button>
+            <button onclick="navigateTo(3)" id="nav-step-3" class="flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 text-slate-500 transition-all">
+                <span>3️⃣</span>
+                <span class="truncate">Lencana Penutup</span>
+                <span id="check-step-3" class="hidden">✅</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- =================================================================== -->
+    <!-- KANDUNGAN UTAMA                                                     -->
+    <!-- =================================================================== -->
+    <main class="w-full max-w-5xl flex-grow flex flex-col justify-center">
+
+        <!-- =============================================================== -->
+        <!-- BAHAGIAN 1: IKRAR KENDIRI – JANJI SAYA SEBAGAI MUSAFIR BERADAB  -->
+        <!-- =============================================================== -->
+        <section id="section-1" class="bg-white/95 rounded-3xl p-5 sm:p-8 shadow-xl border-4 border-sky-200">
+            <div class="text-center mb-6">
+                <span class="inline-block bg-sky-100 text-sky-800 font-extrabold px-4 py-1 rounded-full text-xs sm:text-sm mb-2 border border-sky-300">
+                    BAHAGIAN 1: IKRAR KENDIRI
+                </span>
+                <h2 class="text-2xl sm:text-4xl font-bold text-slate-800">
+                    JANJI SAYA SEBAGAI MUSAFIR BERADAB 🤝✨
+                </h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Ilustrasi Kartun 2D: Dua Kanak-kanak Muslim Meletakkan Tangan di Dada -->
+                <div class="lg:col-span-5 flex flex-col items-center bg-gradient-to-b from-sky-100 via-emerald-50 to-amber-100 rounded-3xl p-5 border-4 border-white shadow-md">
+                    <svg viewBox="0 0 380 300" class="w-full max-w-[320px] h-auto animate-float" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Latar Belakang Awan & Bintang -->
+                        <circle cx="65" cy="48" r="18" fill="#ffffff" opacity="0.85"/>
+                        <circle cx="88" cy="43" r="23" fill="#ffffff" opacity="0.85"/>
+                        <circle cx="112" cy="50" r="17" fill="#ffffff" opacity="0.85"/>
+
+                        <circle cx="285" cy="42" r="16" fill="#ffffff" opacity="0.85"/>
+                        <circle cx="306" cy="38" r="20" fill="#ffffff" opacity="0.85"/>
+                        <circle cx="326" cy="45" r="15" fill="#ffffff" opacity="0.85"/>
+
+                        <!-- Ikon Hati & Bintang di Tengah Atas -->
+                        <path d="M190,46 C182,36 168,38 168,50 C168,61 190,74 190,74 C190,74 212,61 212,50 C212,38 198,36 190,46 Z" fill="#fb7185"/>
+                        <polygon points="145,25 148,33 157,33 150,38 152,46 145,41 138,46 140,38 133,33 142,33" fill="#facc15"/>
+                        <polygon points="235,25 238,33 247,33 240,38 242,46 235,41 228,46 230,38 223,33 232,33" fill="#facc15"/>
+
+                        <!-- WATAK 1: MURID LELAKI MUSLIM (TANGAN DI DADA) -->
+                        <g transform="translate(30, 68)">
+                            <!-- Badan Baju Melayu Biru Muda -->
+                            <path d="M35,135 Q75,122 115,135 L125,215 L25,215 Z" fill="#38bdf8" stroke="#0284c7" stroke-width="3"/>
+                            <!-- Sampin Hijau Pastel -->
+                            <rect x="30" y="185" width="90" height="30" rx="6" fill="#86efac" stroke="#22c55e" stroke-width="2"/>
+                            <!-- Lengan Kiri di Sisi -->
+                            <path d="M35,142 Q18,168 28,190" fill="none" stroke="#38bdf8" stroke-width="14" stroke-linecap="round"/>
+                            <circle cx="28" cy="192" r="8" fill="#fed7aa"/>
+                            <!-- Lengan Kanan Melintang ke Dada (Tanda Ikrar Jujur) -->
+                            <path d="M115,142 Q112,165 82,160" fill="none" stroke="#38bdf8" stroke-width="14" stroke-linecap="round"/>
+                            <!-- Tapak Tangan Kanan di Dada -->
+                            <g transform="translate(65, 148)">
+                                <rect x="0" y="4" width="22" height="15" rx="7" fill="#fed7aa" stroke="#fb923c" stroke-width="1.5"/>
+                                <line x1="2" y1="6" x2="-4" y2="5" stroke="#fed7aa" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="2" y1="10" x2="-5" y2="10" stroke="#fed7aa" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="2" y1="14" x2="-4" y2="15" stroke="#fed7aa" stroke-width="3" stroke-linecap="round"/>
+                            </g>
+                            <!-- Kepala -->
+                            <circle cx="75" cy="92" r="38" fill="#fed7aa" stroke="#fb923c" stroke-width="2"/>
+                            <!-- Songkok -->
+                            <path d="M40,72 Q75,62 110,72 L105,44 Q75,38 45,44 Z" fill="#1e293b"/>
+                            <path d="M40,72 Q75,65 110,72" fill="none" stroke="#fde047" stroke-width="2"/>
+                            <!-- Mata Bersinar & Senyum Yakin -->
+                            <circle cx="62" cy="90" r="4.5" fill="#1e293b"/>
+                            <circle cx="63.5" cy="88.5" r="1.5" fill="#ffffff"/>
+                            <circle cx="88" cy="90" r="4.5" fill="#1e293b"/>
+                            <circle cx="89.5" cy="88.5" r="1.5" fill="#ffffff"/>
+                            <ellipse cx="52" cy="100" rx="6" ry="3.5" fill="#fda4af" opacity="0.65"/>
+                            <ellipse cx="98" cy="100" rx="6" ry="3.5" fill="#fda4af" opacity="0.65"/>
+                            <path d="M64,104 Q75,115 86,104 Z" fill="#f43f5e"/>
+                        </g>
+
+                        <!-- WATAK 2: MURID PEREMPUAN BERTUDUNG (TANGAN DI DADA) -->
+                        <g transform="translate(195, 68)">
+                            <!-- Tudung Oren Pastel / Pic -->
+                            <path d="M25,95 C25,44 125,44 125,95 C130,145 135,182 118,198 C92,208 58,208 32,198 C15,182 20,145 25,95 Z" fill="#fdba74" stroke="#f97316" stroke-width="3"/>
+                            <!-- Baju Kurung Kuning Lembut -->
+                            <path d="M40,168 L110,168 L118,215 L32,215 Z" fill="#fef08a" stroke="#eab308" stroke-width="2"/>
+                            <!-- Lengan Kiri di Sisi -->
+                            <path d="M115,155 Q132,175 122,194" fill="none" stroke="#fdba74" stroke-width="14" stroke-linecap="round"/>
+                            <circle cx="122" cy="196" r="8" fill="#fed7aa"/>
+                            <!-- Lengan Kanan Melintang ke Dada -->
+                            <path d="M35,155 Q42,172 68,162" fill="none" stroke="#fdba74" stroke-width="14" stroke-linecap="round"/>
+                            <!-- Tapak Tangan di Dada -->
+                            <g transform="translate(62, 150)">
+                                <rect x="0" y="4" width="22" height="15" rx="7" fill="#fed7aa" stroke="#fb923c" stroke-width="1.5"/>
+                                <line x1="20" y1="6" x2="26" y2="5" stroke="#fed7aa" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="20" y1="10" x2="27" y2="10" stroke="#fed7aa" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="20" y1="14" x2="26" y2="15" stroke="#fed7aa" stroke-width="3" stroke-linecap="round"/>
+                            </g>
+                            <!-- Muka -->
+                            <circle cx="75" cy="95" r="35" fill="#fed7aa"/>
+                            <!-- Pin Tudung Comel -->
+                            <circle cx="108" cy="68" r="6" fill="#38bdf8"/>
+                            <!-- Mata & Senyuman -->
+                            <circle cx="62" cy="93" r="4.5" fill="#1e293b"/>
+                            <circle cx="63.5" cy="91.5" r="1.5" fill="#ffffff"/>
+                            <circle cx="88" cy="93" r="4.5" fill="#1e293b"/>
+                            <circle cx="89.5" cy="91.5" r="1.5" fill="#ffffff"/>
+                            <ellipse cx="53" cy="103" rx="6" ry="3.5" fill="#fda4af" opacity="0.65"/>
+                            <ellipse cx="97" cy="103" rx="6" ry="3.5" fill="#fda4af" opacity="0.65"/>
+                            <path d="M65,107 Q75,117 85,107 Z" fill="#f43f5e"/>
+                        </g>
+
+                        <!-- Tanah / Lantai -->
+                        <rect x="20" y="280" width="340" height="12" rx="6" fill="#86efac"/>
+                    </svg>
+
+                    <div class="mt-3 bg-white/90 rounded-2xl p-3 text-center border-2 border-sky-200 w-full">
+                        <p class="text-sm sm:text-base font-bold text-slate-700">
+                            Letakkan tangan kanan di dada dan baca ikrar dengan penuh kesedaran.
+                        </p>
+                    </div>
+
+                    <!-- Kawalan Paparan Berperingkat & Audio Ikrar -->
+                    <div class="mt-4 flex flex-col w-full gap-2.5">
+                        <button id="btn-dengar-ikrar" onclick="startIkrarPresentation()" class="btn-action w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white text-base sm:text-lg font-extrabold py-3.5 px-5 rounded-2xl flex items-center justify-center gap-2.5">
+                            <span id="ikrar-audio-icon" class="text-2xl">🔊</span>
+                            <span id="ikrar-audio-label">DENGAR IKRAR</span>
+                        </button>
+                        <button onclick="revealAllIkrarNow()" id="btn-show-all" class="text-xs sm:text-sm font-bold text-sky-700 hover:text-sky-900 underline py-1">
+                            Papar semua isi ikrar serentak
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Papan Teks Ikrar Musafir Beradab (Muncul Berperingkat) -->
+                <div class="lg:col-span-7 bg-amber-50/90 rounded-3xl p-5 sm:p-6 border-4 border-amber-200 shadow-inner">
+                    <div class="flex items-center justify-between border-b-2 border-amber-200 pb-3 mb-4">
+                        <h3 class="text-xl sm:text-2xl font-extrabold text-amber-900 flex items-center gap-2">
+                            <span>📜</span> IKRAR MUSAFIR BERADAB
+                        </h3>
+                        <span id="ikrar-step-badge" class="text-xs font-extrabold bg-amber-200 text-amber-900 px-3 py-1 rounded-full">
+                            Sedia Membaca
+                        </span>
+                    </div>
+
+                    <p id="ikrar-line-0" class="ikrar-item visible text-base sm:text-lg font-extrabold text-slate-800 mb-3 bg-white p-3 rounded-2xl border-2 border-amber-100">
+                        “Dengan penuh kesedaran, saya berjanji akan:
+                    </p>
+
+                    <ol class="space-y-2.5 text-base sm:text-lg font-bold text-slate-800">
+                        <li id="ikrar-line-1" class="ikrar-item bg-white p-3 rounded-2xl border-2 border-sky-100 flex items-start gap-3">
+                            <span class="w-7 h-7 rounded-full bg-sky-400 text-white font-extrabold flex items-center justify-center shrink-0 text-sm mt-0.5">1</span>
+                            <span>Merancang perjalanan dengan baik.</span>
+                        </li>
+                        <li id="ikrar-line-2" class="ikrar-item bg-white p-3 rounded-2xl border-2 border-emerald-100 flex items-start gap-3">
+                            <span class="w-7 h-7 rounded-full bg-emerald-400 text-white font-extrabold flex items-center justify-center shrink-0 text-sm mt-0.5">2</span>
+                            <span>Membaca Bismillah dan doa sebelum memulakan perjalanan.</span>
+                        </li>
+                        <li id="ikrar-line-3" class="ikrar-item bg-white p-3 rounded-2xl border-2 border-amber-100 flex items-start gap-3">
+                            <span class="w-7 h-7 rounded-full bg-amber-400 text-white font-extrabold flex items-center justify-center shrink-0 text-sm mt-0.5">3</span>
+                            <span>Menjaga keselamatan diri dan mematuhi peraturan.</span>
+                        </li>
+                        <li id="ikrar-line-4" class="ikrar-item bg-white p-3 rounded-2xl border-2 border-orange-100 flex items-start gap-3">
+                            <span class="w-7 h-7 rounded-full bg-orange-400 text-white font-extrabold flex items-center justify-center shrink-0 text-sm mt-0.5">4</span>
+                            <span>Menghormati serta mengutamakan orang yang memerlukan.</span>
+                        </li>
+                        <li id="ikrar-line-5" class="ikrar-item bg-white p-3 rounded-2xl border-2 border-teal-100 flex items-start gap-3">
+                            <span class="w-7 h-7 rounded-full bg-teal-400 text-white font-extrabold flex items-center justify-center shrink-0 text-sm mt-0.5">5</span>
+                            <span>Menjaga kebersihan dan kemudahan kenderaan.</span>
+                        </li>
+                        <li id="ikrar-line-6" class="ikrar-item bg-white p-3 rounded-2xl border-2 border-indigo-100 flex items-start gap-3">
+                            <span class="w-7 h-7 rounded-full bg-indigo-400 text-white font-extrabold flex items-center justify-center shrink-0 text-sm mt-0.5">6</span>
+                            <span>Tidak berebut-rebut ketika menaiki kenderaan.</span>
+                        </li>
+                    </ol>
+
+                    <p id="ikrar-line-7" class="ikrar-item text-base sm:text-lg font-extrabold text-slate-800 mt-3 bg-white p-3 rounded-2xl border-2 border-amber-100">
+                        Saya akan berusaha mengamalkan adab ini dalam setiap perjalanan saya demi keselamatan, kesejahteraan dan keredaan Allah SWT.”
+                    </p>
+
+                    <!-- Butang Pengesahan Ikrar -->
+                    <div class="mt-5 pt-4 border-t-2 border-amber-200 flex flex-col items-center">
+                        <button id="btn-saya-berjanji" onclick="confirmIkrar(event)" class="btn-action w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white text-lg sm:text-xl font-extrabold px-8 py-4 rounded-2xl flex items-center justify-center gap-3">
+                            <span class="text-2xl">✋</span>
+                            <span>SAYA BERJANJI</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Animasi Lencana & Mesej Pengesahan Selepas Menekan "SAYA BERJANJI" -->
+            <div id="ikrar-confirmed-banner" class="hidden mt-6 bg-gradient-to-r from-emerald-100 via-teal-50 to-amber-100 border-4 border-emerald-400 rounded-3xl p-5 sm:p-6 text-center animate-badge shadow-lg">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-300 border-4 border-white shadow-md text-4xl mb-3">
+                    🏅
+                </div>
+                <h3 class="text-xl sm:text-3xl font-extrabold text-emerald-900 mb-2">
+                    “Tahniah! Kamu telah berjanji untuk menjadi musafir yang beradab!”
+                </h3>
+                <p class="text-sm sm:text-base font-bold text-slate-700 mb-4">
+                    Janji yang baik akan membimbing kita sentiasa menjaga adab di mana-mana sahaja.
+                </p>
+                <button onclick="navigateTo(2)" class="btn-action bg-amber-400 hover:bg-amber-500 text-amber-950 text-lg sm:text-xl font-extrabold px-8 py-3.5 rounded-2xl inline-flex items-center gap-2">
+                    <span>Teruskan ke Papan Refleksi</span>
+                    <span>➡️</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- BAHAGIAN 2: REFLEKSI – JOM NILAI DIRI!                          -->
+        <!-- =============================================================== -->
+        <section id="section-2" class="hidden bg-white/95 rounded-3xl p-5 sm:p-8 shadow-xl border-4 border-emerald-200">
+            <!-- Kepala Papan Refleksi dengan Ilustrasi Buku Catatan & Watak -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 bg-gradient-to-r from-emerald-100 via-sky-100 to-amber-100 rounded-3xl p-5 mb-6 border-4 border-white shadow-sm">
+                <div class="text-center md:text-left">
+                    <span class="inline-block bg-emerald-200 text-emerald-900 font-extrabold px-3.5 py-1 rounded-full text-xs sm:text-sm mb-1.5">
+                        BAHAGIAN 2: PAPAN REFLEKSI INTERAKTIF
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl font-bold text-slate-800">
+                        JOM NILAI DIRI! 📓⭐
+                    </h2>
+                    <p class="text-sm sm:text-base font-semibold text-slate-700 mt-1">
+                        Lengkapkan keempat-empat catatan refleksi di bawah dengan jujur. Ini bukan ujian, tetapi ruang untuk kamu menghayati amalan baik.
+                    </p>
+                </div>
+
+                <!-- Ilustrasi SVG Papan Buku Catatan, Bintang & Tanda Semak -->
+                <div class="shrink-0">
+                    <svg viewBox="0 0 180 110" class="w-40 sm:w-44 h-auto" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Buku Catatan -->
+                        <rect x="35" y="15" width="90" height="80" rx="10" fill="#fde047" stroke="#eab308" stroke-width="3"/>
+                        <rect x="43" y="22" width="74" height="66" rx="6" fill="#ffffff"/>
+                        <!-- Gelung Buku -->
+                        <circle cx="35" cy="30" r="4" fill="#64748b"/>
+                        <circle cx="35" cy="48" r="4" fill="#64748b"/>
+                        <circle cx="35" cy="66" r="4" fill="#64748b"/>
+                        <circle cx="35" cy="82" r="4" fill="#64748b"/>
+                        <!-- Tanda Semak & Garisan dalam Buku -->
+                        <path d="M55,40 L61,46 L72,33" fill="none" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="78" y1="40" x2="106" y2="40" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M55,60 L61,66 L72,53" fill="none" stroke="#10b981" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="78" y1="60" x2="106" y2="60" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+                        <!-- Bintang Terapung -->
+                        <polygon points="145,20 149,31 161,31 151,38 155,49 145,42 135,49 139,38 129,31 141,31" fill="#fb923c"/>
+                        <polygon points="15,22 18,29 25,29 19,34 21,41 15,36 9,41 11,34 5,29 12,29" fill="#38bdf8"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Grid 4 Aktiviti Refleksi -->
+            <div class="space-y-6">
+
+                <!-- ======================================================= -->
+                <!-- REFLEKSI 1: APA YANG SAYA PELAJARI?                     -->
+                <!-- ======================================================= -->
+                <div id="card-ref-1" class="bg-sky-50/80 rounded-3xl p-5 sm:p-6 border-3 border-sky-200">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="bg-sky-500 text-white font-extrabold px-3.5 py-1 rounded-full text-xs sm:text-sm">
+                            REFLEKSI 1: APA YANG SAYA PELAJARI?
+                        </span>
+                        <span id="ref1-counter" class="text-xs sm:text-sm font-extrabold bg-white text-sky-800 px-3 py-1 rounded-full border border-sky-200">
+                            Dipilih: 0 / minimum 4 adab
+                        </span>
+                    </div>
+                    <p class="text-base sm:text-lg font-extrabold text-slate-800 mb-4">
+                        Arahan: Pilih sekurang-kurangnya EMPAT adab menaiki kenderaan yang telah kamu pelajari.
+                    </p>
+
+                    <div id="ref1-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Dijana oleh JavaScript -->
+                    </div>
+
+                    <!-- Maklum Balas Refleksi 1 -->
+                    <div id="ref1-feedback" class="hidden mt-4 p-3.5 rounded-2xl bg-white border-2 border-emerald-300 text-sm sm:text-base font-bold text-emerald-900 flex items-center gap-2.5">
+                        <span class="text-2xl">🌟</span>
+                        <span id="ref1-feedback-text"></span>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- REFLEKSI 2: SAYA FAHAM!                                 -->
+                <!-- ======================================================= -->
+                <div id="card-ref-2" class="bg-amber-50/80 rounded-3xl p-5 sm:p-6 border-3 border-amber-200">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="bg-amber-500 text-white font-extrabold px-3.5 py-1 rounded-full text-xs sm:text-sm">
+                            REFLEKSI 2: SAYA FAHAM!
+                        </span>
+                        <span id="ref2-counter" class="text-xs sm:text-sm font-extrabold bg-white text-amber-800 px-3 py-1 rounded-full border border-amber-200">
+                            Dipilih: 0 / minimum 2 kepentingan
+                        </span>
+                    </div>
+                    <p class="text-base sm:text-lg font-extrabold text-slate-800 mb-1">
+                        “Apakah kepentingan mengamalkan adab menaiki kenderaan?”
+                    </p>
+                    <p class="text-xs sm:text-sm font-semibold text-slate-600 mb-4">
+                        Pilih sekurang-kurangnya dua jawapan yang tepat.
+                    </p>
+
+                    <div id="ref2-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Dijana oleh JavaScript -->
+                    </div>
+
+                    <!-- Maklum Balas Refleksi 2 -->
+                    <div id="ref2-feedback" class="hidden mt-4 p-3.5 rounded-2xl bg-white border-2 border-emerald-300 text-sm sm:text-base font-bold text-emerald-900 flex items-center gap-2.5">
+                        <span class="text-2xl">💡</span>
+                        <span id="ref2-feedback-text"></span>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- REFLEKSI 3: NILAI AMALAN SAYA                           -->
+                <!-- ======================================================= -->
+                <div id="card-ref-3" class="bg-orange-50/80 rounded-3xl p-5 sm:p-6 border-3 border-orange-200">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="bg-orange-500 text-white font-extrabold px-3.5 py-1 rounded-full text-xs sm:text-sm">
+                            REFLEKSI 3: NILAI AMALAN SAYA
+                        </span>
+                        <span id="ref3-status" class="text-xs sm:text-sm font-extrabold bg-white text-orange-800 px-3 py-1 rounded-full border border-orange-200">
+                            Belum dipilih
+                        </span>
+                    </div>
+                    <p class="text-base sm:text-lg font-extrabold text-slate-800 mb-4">
+                        “Sejauh manakah kamu yakin dapat mengamalkan adab menaiki kenderaan?”
+                    </p>
+
+                    <div id="ref3-options" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <!-- Dijana oleh JavaScript -->
+                    </div>
+
+                    <!-- Maklum Balas Positif Refleksi 3 -->
+                    <div id="ref3-feedback" class="hidden mt-4 p-4 rounded-2xl bg-white border-2 border-orange-300 text-sm sm:text-base font-bold text-slate-800 flex items-center gap-3">
+                        <span id="ref3-feedback-icon" class="text-3xl">🌟</span>
+                        <span id="ref3-feedback-text"></span>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- REFLEKSI 4: AZAM SAYA                                   -->
+                <!-- ======================================================= -->
+                <div id="card-ref-4" class="bg-emerald-50/80 rounded-3xl p-5 sm:p-6 border-3 border-emerald-200">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="bg-emerald-600 text-white font-extrabold px-3.5 py-1 rounded-full text-xs sm:text-sm">
+                            REFLEKSI 4: AZAM SAYA
+                        </span>
+                        <span id="ref4-status" class="text-xs sm:text-sm font-extrabold bg-white text-emerald-800 px-3 py-1 rounded-full border border-emerald-200">
+                            Tulis azam kamu
+                        </span>
+                    </div>
+                    <p class="text-base sm:text-lg font-extrabold text-slate-800 mb-3">
+                        “Nyatakan satu adab menaiki kenderaan yang akan kamu amalkan selepas ini.”
+                    </p>
+
+                    <!-- Contoh Inspirasi (Boleh diklik untuk inspirasi atau ditaip sendiri) -->
+                    <div class="mb-3">
+                        <p class="text-xs sm:text-sm font-bold text-emerald-800 mb-2">
+                            ✨ Contoh inspirasi (kamu boleh tulis ayat sendiri atau klik contoh di bawah untuk rujukan):
+                        </p>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" onclick="useInspiration(this.textContent)" class="text-xs sm:text-sm bg-white hover:bg-emerald-100 text-slate-700 font-semibold px-3 py-1.5 rounded-xl border border-emerald-300 transition-colors text-left">
+                                Saya akan membaca doa menaiki kenderaan.
+                            </button>
+                            <button type="button" onclick="useInspiration(this.textContent)" class="text-xs sm:text-sm bg-white hover:bg-emerald-100 text-slate-700 font-semibold px-3 py-1.5 rounded-xl border border-emerald-300 transition-colors text-left">
+                                Saya akan memberikan tempat duduk kepada warga emas.
+                            </button>
+                            <button type="button" onclick="useInspiration(this.textContent)" class="text-xs sm:text-sm bg-white hover:bg-emerald-100 text-slate-700 font-semibold px-3 py-1.5 rounded-xl border border-emerald-300 transition-colors text-left">
+                                Saya akan menjaga kebersihan kenderaan.
+                            </button>
+                            <button type="button" onclick="useInspiration(this.textContent)" class="text-xs sm:text-sm bg-white hover:bg-emerald-100 text-slate-700 font-semibold px-3 py-1.5 rounded-xl border border-emerald-300 transition-colors text-left">
+                                Saya tidak akan berebut-rebut ketika menaiki kenderaan.
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ruang Jawapan Pendek -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="text" id="azam-input" oninput="handleAzamInput()" placeholder="Taip azam kamu di sini..." class="flex-grow bg-white border-3 border-emerald-300 focus:border-emerald-500 focus:outline-none rounded-2xl px-4 py-3 text-base sm:text-lg font-bold text-slate-800 shadow-inner" maxlength="140">
+                        <button type="button" onclick="saveAzam()" class="btn-action bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-6 py-3 rounded-2xl text-base shrink-0">
+                            Simpan Azam ✍️
+                        </button>
+                    </div>
+
+                    <div id="ref4-feedback" class="hidden mt-3 p-3.5 rounded-2xl bg-white border-2 border-emerald-400 text-sm sm:text-base font-bold text-emerald-900 flex items-center gap-2.5">
+                        <span class="text-2xl">💖</span>
+                        <span id="ref4-feedback-text"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Butang Selesai Refleksi -->
+            <div class="mt-8 pt-5 border-t-2 border-slate-200 flex flex-col items-center text-center">
+                <p id="reflection-guide-msg" class="text-sm sm:text-base font-bold text-slate-600 mb-3">
+                    Lengkapkan keempat-empat aktiviti refleksi di atas untuk membuka halaman penghargaan kamu!
+                </p>
+                <button id="btn-finish-reflection" onclick="completeReflection()" class="btn-action bg-gradient-to-r from-sky-500 via-emerald-500 to-teal-500 text-white text-lg sm:text-xl font-extrabold px-8 py-4 rounded-2xl flex items-center gap-3">
+                    <span>🏆</span>
+                    <span>Selesai Refleksi & Lihat Lencana Saya!</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- BAHAGIAN 3: PENUTUP – LANGKAH KECIL, AMALAN HEBAT!              -->
+        <!-- =============================================================== -->
+        <section id="section-3" class="hidden bg-white/95 rounded-3xl p-5 sm:p-8 shadow-xl border-4 border-amber-300 text-center">
+            <span class="inline-block bg-amber-100 text-amber-900 font-extrabold px-4 py-1 rounded-full text-xs sm:text-sm mb-2 border border-amber-300">
+                BAHAGIAN 3: LANGKAH KECIL, AMALAN HEBAT!
+            </span>
+
+            <h2 class="text-2xl sm:text-4xl md:text-5xl font-extrabold text-emerald-700 leading-tight mb-4">
+                “ALHAMDULILLAH! KAMU TELAH MELENGKAPKAN JEJAK MUSAFIR BERADAB!” 🎉
+            </h2>
+
+            <!-- Ilustrasi Kartun 2D: Dua Kanak-kanak Muslim Tersenyum Memegang Lencana Musafir Beradab -->
+            <div class="max-w-lg mx-auto bg-gradient-to-b from-sky-100 via-amber-50 to-emerald-100 rounded-3xl p-5 border-4 border-white shadow-md mb-6">
+                <svg viewBox="0 0 420 260" class="w-full h-auto animate-float" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Konfeti & Bintang Ceria -->
+                    <polygon points="65,30 69,41 81,41 71,48 75,59 65,52 55,59 59,48 49,41 61,41" fill="#facc15"/>
+                    <polygon points="355,30 359,41 371,41 361,48 365,59 355,52 345,59 349,48 339,41 351,41" fill="#fb923c"/>
+                    <circle cx="130" cy="28" r="6" fill="#38bdf8"/>
+                    <circle cx="290" cy="25" r="6" fill="#34d399"/>
+
+                    <!-- WATAK LELAKI (KIRI) -->
+                    <g transform="translate(45, 50)">
+                        <path d="M30,120 Q65,110 100,120 L108,195 L22,195 Z" fill="#38bdf8" stroke="#0284c7" stroke-width="3"/>
+                        <circle cx="65" cy="82" r="34" fill="#fed7aa"/>
+                        <!-- Songkok -->
+                        <path d="M33,64 Q65,54 97,64 L93,40 Q65,35 37,40 Z" fill="#1e293b"/>
+                        <!-- Mata & Senyum Lebar -->
+                        <circle cx="53" cy="80" r="4" fill="#1e293b"/>
+                        <circle cx="77" cy="80" r="4" fill="#1e293b"/>
+                        <path d="M55,93 Q65,104 75,93 Z" fill="#f43f5e"/>
+                        <!-- Tangan Kanan Memegang Lencana di Tengah -->
+                        <path d="M98,125 Q118,132 130,128" fill="none" stroke="#38bdf8" stroke-width="13" stroke-linecap="round"/>
+                        <circle cx="132" cy="128" r="8" fill="#fed7aa"/>
+                    </g>
+
+                    <!-- WATAK PEREMPUAN BERTUDUNG (KANAN) -->
+                    <g transform="translate(245, 50)">
+                        <path d="M22,82 C22,38 108,38 108,82 C112,128 116,162 102,175 C80,185 50,185 28,175 C14,162 18,128 22,82 Z" fill="#fdba74" stroke="#f97316" stroke-width="3"/>
+                        <circle cx="65" cy="84" r="31" fill="#fed7aa"/>
+                        <!-- Mata & Senyum Lebar -->
+                        <circle cx="54" cy="82" r="4" fill="#1e293b"/>
+                        <circle cx="76" cy="82" r="4" fill="#1e293b"/>
+                        <path d="M56,95 Q65,105 74,95 Z" fill="#f43f5e"/>
+                        <!-- Tangan Kiri Memegang Lencana di Tengah -->
+                        <path d="M32,125 Q12,132 0,128" fill="none" stroke="#fdba74" stroke-width="13" stroke-linecap="round"/>
+                        <circle cx="-2" cy="128" r="8" fill="#fed7aa"/>
+                    </g>
+
+                    <!-- LENCANA MUSAFIR BERADAB DIPEGANG BERSAMA DI TENGAH -->
+                    <g transform="translate(162, 130)">
+                        <!-- Reben Lencana -->
+                        <polygon points="28,65 18,105 35,95 45,105 42,65" fill="#ef4444"/>
+                        <polygon points="68,65 78,105 61,95 51,105 54,65" fill="#dc2626"/>
+                        <!-- Bulatan Emas Lencana -->
+                        <circle cx="48" cy="45" r="40" fill="#facc15" stroke="#eab308" stroke-width="4"/>
+                        <circle cx="48" cy="45" r="31" fill="#fef9c3" stroke="#f59e0b" stroke-width="2"/>
+                        <!-- Bintang Besar Tengah Lencana -->
+                        <polygon points="48,22 54,36 69,36 57,45 61,59 48,50 35,59 39,45 27,36 42,36" fill="#f97316"/>
+                    </g>
+
+                    <!-- Lantai Hijau -->
+                    <rect x="25" y="242" width="370" height="12" rx="6" fill="#86efac"/>
+                </svg>
+            </div>
+
+            <!-- Mesej Penghargaan -->
+            <div class="max-w-2xl mx-auto bg-sky-50 rounded-3xl p-5 sm:p-6 border-3 border-sky-200 mb-6">
+                <p class="text-lg sm:text-xl font-bold text-slate-800 leading-relaxed">
+                    “Ilmu yang dipelajari bukan sekadar untuk diingati, tetapi perlu diamalkan dalam kehidupan seharian. Jadilah musafir yang beradab, prihatin dan bertanggungjawab!”
+                </p>
+            </div>
+
+            <!-- Lencana Besar: SAYA MUSAFIR BERADAB! -->
+            <div class="animate-badge inline-block bg-gradient-to-r from-amber-400 via-yellow-300 to-orange-400 p-2.5 rounded-3xl shadow-xl border-4 border-white mb-6">
+                <div class="bg-white rounded-2xl px-6 sm:px-10 py-4 border-3 border-amber-400 flex flex-col sm:flex-row items-center gap-3">
+                    <span class="text-4xl sm:text-5xl">🏅</span>
+                    <div class="text-center sm:text-left">
+                        <span class="block text-xs font-extrabold uppercase tracking-widest text-amber-600">Lencana Penghargaan</span>
+                        <span class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                            SAYA MUSAFIR BERADAB!
+                        </span>
+                    </div>
+                    <span class="text-4xl sm:text-5xl">🌟</span>
+                </div>
+            </div>
+
+            <!-- Paparan Azam Pilihan Murid (Jika diisi) -->
+            <div id="final-azam-card" class="hidden max-w-xl mx-auto bg-emerald-50 border-3 border-emerald-300 rounded-2xl p-4 mb-6">
+                <p class="text-xs font-extrabold uppercase tracking-wider text-emerald-700 mb-1">✍️ Azam Saya Hari Ini:</p>
+                <p id="final-azam-text" class="text-base sm:text-lg font-extrabold text-emerald-950 italic"></p>
+            </div>
+
+            <!-- Butang Ulang Aktiviti -->
+            <div>
+                <button onclick="resetAllActivities()" class="btn-action bg-sky-500 hover:bg-sky-600 text-white text-base sm:text-lg font-extrabold px-7 py-3.5 rounded-2xl inline-flex items-center gap-2">
+                    <span>🔄</span>
+                    <span>Ulang Semula Jejak Musafir</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Pengaki -->
+    <footer class="w-full max-w-5xl text-center text-xs sm:text-sm font-bold text-slate-600 mt-5">
+        Pendidikan Islam Tahun 5 • Tajuk: Adab Menaiki Kenderaan • Jejak Musafir Beradab
+    </footer>
+
+    <!-- =================================================================== -->
+    <!-- LOGIK INTERAKTIF, ANIMASI & AUDIO                                   -->
+    <!-- =================================================================== -->
+    <script>
+        // ==========================================
+        // 1. KEADAAN & DATA BAHAN PEMBELAJARAN
+        // ==========================================
+        const appState = {
+            currentStep: 1,
+            ikrarConfirmed: false,
+            reflectionCompleted: false,
+            sfxOn: true,
+            musicOn: false,
+            isReadingIkrar: false,
+            ref1Selected: new Set(),
+            ref2Selected: new Set(),
+            ref3Choice: null,
+            azamText: ""
+        };
+
+        // Data Refleksi 1: Apa yang saya pelajari?
+        const ref1Items = [
+            { id: 'r1_1', text: "Merancang perjalanan.", isAdab: true },
+            { id: 'r1_2', text: "Membaca Bismillah.", isAdab: true },
+            { id: 'r1_3', text: "Membaca doa menaiki kenderaan.", isAdab: true },
+            { id: 'r1_4', text: "Menjaga keselamatan.", isAdab: true },
+            { id: 'r1_5', text: "Menghormati orang lain.", isAdab: true },
+            { id: 'r1_6', text: "Menjaga kebersihan kenderaan.", isAdab: true },
+            { id: 'r1_7', text: "Tidak berebut-rebut.", isAdab: true },
+            { id: 'r1_8', text: "Merosakkan kemudahan awam.", isAdab: false }
+        ];
+
+        // Data Refleksi 2: Saya Faham!
+        const ref2Items = [
+            { id: 'r2_1', text: "Perjalanan menjadi lebih selamat dan lancar.", isBenefit: true },
+            { id: 'r2_2', text: "Disenangi oleh orang sekeliling.", isBenefit: true },
+            { id: 'r2_3', text: "Menyusahkan penumpang lain.", isBenefit: false },
+            { id: 'r2_4', text: "Mendapat keredaan Allah SWT.", isBenefit: true }
+        ];
+
+        // Data Refleksi 3: Nilai Amalan Saya
+        const ref3Items = [
+            {
+                id: 'r3_1',
+                icon: "🌟",
+                text: "Saya sangat yakin dan boleh mengamalkannya.",
+                feedback: "Alhamdulillah, keyakinan yang hebat! Semoga Allah SWT mempermudah kamu mengamalkan setiap adab ini dalam semua perjalanan."
+            },
+            {
+                id: 'r3_2',
+                icon: "😊",
+                text: "Saya faham dan akan cuba mengamalkannya.",
+                feedback: "Bagus sekali! Faham dan mahu mencuba adalah langkah pertama yang sangat mulia. Teruskan usaha setiap hari!"
+            },
+            {
+                id: 'r3_3',
+                icon: "🌱",
+                text: "Saya masih perlu berlatih dan belajar.",
+                feedback: "Tahniah kerana jujur menilai diri! Tidak mengapa jika masih berlatih—setiap langkah kecil pasti membawa perubahan besar."
+            }
+        ];
+
+        // ==========================================
+        // 2. SISTEM AUDIO (TONE.JS & SUARA BACAAN)
+        // ==========================================
+        let bgLoop = null;
+        let bgSynth = null;
+
+        async function ensureAudioReady() {
+            if (Tone.context.state !== 'running') {
+                await Tone.start();
+            }
+        }
+
+        async function playSfx(kind = 'click') {
+            if (!appState.sfxOn) return;
+            try {
+                await ensureAudioReady();
+                const synth = new Tone.Synth({
+                    oscillator: { type: 'sine' },
+                    envelope: { attack: 0.01, decay: 0.14, sustain: 0, release: 0.1 }
+                }).toDestination();
+                synth.volume.value = -9;
+
+                const now = Tone.now();
+                if (kind === 'click') {
+                    synth.triggerAttackRelease("D5", "16n", now);
+                } else if (kind === 'check') {
+                    synth.triggerAttackRelease("E5", "16n", now);
+                    synth.triggerAttackRelease("A5", "16n", now + 0.09);
+                } else if (kind === 'gentle') {
+                    synth.triggerAttackRelease("G4", "16n", now);
+                    synth.triggerAttackRelease("B4", "8n", now + 0.1);
+                } else if (kind === 'fanfare') {
+                    synth.triggerAttackRelease("C5", "16n", now);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.1);
+                    synth.triggerAttackRelease("G5", "16n", now + 0.2);
+                    synth.triggerAttackRelease("C6", "4n", now + 0.3);
+                }
+            } catch (err) {
+                console.warn("Audio tidak dapat dimainkan:", err);
+            }
+        }
+
+        async function toggleMusic() {
+            await ensureAudioReady();
+            const iconEl = document.getElementById('music-icon');
+            const labelEl = document.getElementById('music-label');
+
+            if (!appState.musicOn) {
+                if (!bgSynth) {
+                    bgSynth = new Tone.PolySynth(Tone.Synth, {
+                        oscillator: { type: "triangle" },
+                        envelope: { attack: 0.1, decay: 0.3, sustain: 0.25, release: 0.9 }
+                    }).toDestination();
+                    bgSynth.volume.value = -19; // Lembut & memberi semangat
+
+                    const notes = [
+                        "G4", "E4", "C4", "E4",
+                        "F4", "A4", "G4", "E4",
+                        "D4", "F4", "A4", "G4",
+                        "E4", "D4", "C4", null
+                    ];
+                    let idx = 0;
+                    bgLoop = new Tone.Loop((time) => {
+                        const n = notes[idx % notes.length];
+                        if (n) bgSynth.triggerAttackRelease(n, "8n", time);
+                        idx++;
+                    }, "4n");
+                }
+                Tone.Transport.bpm.value = 108;
+                bgLoop.start(0);
+                Tone.Transport.start();
+                appState.musicOn = true;
+                iconEl.textContent = "🎶";
+                labelEl.textContent = "Muzik: Buka";
+                playSfx('click');
+            } else {
+                bgLoop.stop();
+                Tone.Transport.stop();
+                appState.musicOn = false;
+                iconEl.textContent = "🎵";
+                labelEl.textContent = "Muzik: Tutup";
+            }
+        }
+
+        function toggleSfx() {
+            appState.sfxOn = !appState.sfxOn;
+            const iconEl = document.getElementById('sfx-icon');
+            const labelEl = document.getElementById('sfx-label');
+            if (appState.sfxOn) {
+                iconEl.textContent = "🔊";
+                labelEl.textContent = "Bunyi: Buka";
+                playSfx('click');
+            } else {
+                iconEl.textContent = "🔇";
+                labelEl.textContent = "Bunyi: Tutup";
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            }
+        }
+
+        // ==========================================
+        // 3. BAHAGIAN 1: IKRAR BERPERINGKAT & AUDIO
+        // ==========================================
+        const ikrarTexts = [
+            "Dengan penuh kesedaran, saya berjanji akan:",
+            "Satu. Merancang perjalanan dengan baik.",
+            "Dua. Membaca Bismillah dan doa sebelum memulakan perjalanan.",
+            "Tiga. Menjaga keselamatan diri dan mematuhi peraturan.",
+            "Empat. Menghormati serta mengutamakan orang yang memerlukan.",
+            "Lima. Menjaga kebersihan dan kemudahan kenderaan.",
+            "Enam. Tidak berebut-rebut ketika menaiki kenderaan.",
+            "Saya akan berusaha mengamalkan adab ini dalam setiap perjalanan saya demi keselamatan, kesejahteraan dan keredaan Allah SWT."
+        ];
+
+        function startIkrarPresentation() {
+            playSfx('click');
+            const btnLabel = document.getElementById('ikrar-audio-label');
+            const btnIcon = document.getElementById('ikrar-audio-icon');
+            const badge = document.getElementById('ikrar-step-badge');
+
+            if (appState.isReadingIkrar) {
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                appState.isReadingIkrar = false;
+                clearReadingHighlight();
+                btnLabel.textContent = "DENGAR IKRAR";
+                btnIcon.textContent = "🔊";
+                badge.textContent = "Bacaan Dihentikan";
+                return;
+            }
+
+            // Sembunyikan baris 1-7 dahulu untuk animasi berperingkat yang segar
+            for (let i = 1; i <= 7; i++) {
+                const el = document.getElementById(`ikrar-line-${i}`);
+                el.classList.remove('visible', 'reading-now');
+            }
+
+            appState.isReadingIkrar = true;
+            btnLabel.textContent = "HENTI BACAAN";
+            btnIcon.textContent = "⏹️";
+
+            let step = 0;
+
+            function processStep() {
+                if (!appState.isReadingIkrar || step >= ikrarTexts.length) {
+                    clearReadingHighlight();
+                    revealAllIkrarNow(false);
+                    appState.isReadingIkrar = false;
+                    btnLabel.textContent = "DENGAR IKRAR";
+                    btnIcon.textContent = "🔊";
+                    badge.textContent = "Selesai Dibaca ✓";
+                    return;
+                }
+
+                clearReadingHighlight();
+                const lineEl = document.getElementById(`ikrar-line-${step}`);
+                if (lineEl) {
+                    lineEl.classList.add('visible', 'reading-now');
+                }
+                badge.textContent = `Membaca Bahagian ${step + 1} / ${ikrarTexts.length}`;
+
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utter = new SpeechSynthesisUtterance(ikrarTexts[step]);
+                    const voices = window.speechSynthesis.getVoices();
+                    const msVoice = voices.find(v => v.lang.includes('ms') || v.lang.includes('id'));
+                    if (msVoice) utter.voice = msVoice;
+                    utter.lang = 'ms-MY';
+                    utter.pitch = 1.22; // Suara kanak-kanak yang jelas & bersemangat
+                    utter.rate = 0.95;
+
+                    utter.onend = () => {
+                        step++;
+                        processStep();
+                    };
+                    utter.onerror = () => {
+                        step++;
+                        processStep();
+                    };
+                    window.speechSynthesis.speak(utter);
+                } else {
+                    playSfx('check');
+                    setTimeout(() => {
+                        step++;
+                        processStep();
+                    }, 1800);
+                }
+            }
+
+            processStep();
+        }
+
+        function clearReadingHighlight() {
+            for (let i = 0; i <= 7; i++) {
+                const el = document.getElementById(`ikrar-line-${i}`);
+                if (el) el.classList.remove('reading-now');
+            }
+        }
+
+        function revealAllIkrarNow(playSound = true) {
+            if (playSound) playSfx('click');
+            for (let i = 0; i <= 7; i++) {
+                const el = document.getElementById(`ikrar-line-${i}`);
+                if (el) el.classList.add('visible');
+            }
+            document.getElementById('ikrar-step-badge').textContent = "Semua Isi Dipaparkan";
+        }
+
+        function confirmIkrar(event) {
+            // Pastikan semua baris ikrar dipaparkan apabila murid mengesahkan ikrar
+            revealAllIkrarNow(false);
+            if (appState.isReadingIkrar && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                appState.isReadingIkrar = false;
+                clearReadingHighlight();
+                document.getElementById('ikrar-audio-label').textContent = "DENGAR IKRAR";
+                document.getElementById('ikrar-audio-icon').textContent = "🔊";
+            }
+
+            appState.ikrarConfirmed = true;
+            playSfx('fanfare');
+            burstParticles(event);
+
+            // Tandakan langkah 1 selesai pada peta kemajuan
+            document.getElementById('check-step-1').classList.remove('hidden');
+
+            const banner = document.getElementById('ikrar-confirmed-banner');
+            banner.classList.remove('hidden');
+            banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            if (appState.sfxOn && 'speechSynthesis' in window) {
+                const utter = new SpeechSynthesisUtterance("Tahniah! Kamu telah berjanji untuk menjadi musafir yang beradab!");
+                utter.lang = 'ms-MY';
+                utter.pitch = 1.2;
+                window.speechSynthesis.speak(utter);
+            }
+        }
+
+        // ==========================================
+        // 4. BAHAGIAN 2: PAPAN REFLEKSI INTERAKTIF
+        // ==========================================
+        function initReflectionBoard() {
+            // Bina pilihan Refleksi 1
+            const r1Container = document.getElementById('ref1-options');
+            r1Container.innerHTML = '';
+            ref1Items.forEach(item => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.id = `btn-${item.id}`;
+                btn.className = "choice-pill bg-white p-3.5 rounded-2xl flex items-center gap-3 text-left font-bold text-sm sm:text-base text-slate-800";
+                btn.onclick = () => toggleRef1(item);
+                btn.innerHTML = `
+                    <span id="icon-${item.id}" class="w-7 h-7 rounded-lg bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-sm shrink-0">⬜</span>
+                    <span>${item.text}</span>
+                `;
+                r1Container.appendChild(btn);
+            });
+
+            // Bina pilihan Refleksi 2
+            const r2Container = document.getElementById('ref2-options');
+            r2Container.innerHTML = '';
+            ref2Items.forEach(item => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.id = `btn-${item.id}`;
+                btn.className = "choice-pill bg-white p-3.5 rounded-2xl flex items-center gap-3 text-left font-bold text-sm sm:text-base text-slate-800";
+                btn.onclick = () => toggleRef2(item);
+                btn.innerHTML = `
+                    <span id="icon-${item.id}" class="w-7 h-7 rounded-lg bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-sm shrink-0">⬜</span>
+                    <span>${item.text}</span>
+                `;
+                r2Container.appendChild(btn);
+            });
+
+            // Bina pilihan Refleksi 3
+            const r3Container = document.getElementById('ref3-options');
+            r3Container.innerHTML = '';
+            ref3Items.forEach(item => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.id = `btn-${item.id}`;
+                btn.className = "choice-pill bg-white p-4 rounded-2xl flex flex-col items-center text-center gap-2 font-bold text-sm sm:text-base text-slate-800";
+                btn.onclick = () => selectRef3(item);
+                btn.innerHTML = `
+                    <span class="text-3xl">${item.icon}</span>
+                    <span>${item.text}</span>
+                `;
+                r3Container.appendChild(btn);
+            });
+        }
+
+        // Logik Refleksi 1 (Pilih sekurang-kurangnya 4 adab)
+        function toggleRef1(item) {
+            const btn = document.getElementById(`btn-${item.id}`);
+            const icon = document.getElementById(`icon-${item.id}`);
+            const fbBox = document.getElementById('ref1-feedback');
+            const fbText = document.getElementById('ref1-feedback-text');
+
+            if (appState.ref1Selected.has(item.id)) {
+                appState.ref1Selected.delete(item.id);
+                btn.classList.remove('checked', 'gentle-note');
+                icon.textContent = "⬜";
+                playSfx('click');
+            } else {
+                appState.ref1Selected.add(item.id);
+                if (item.isAdab) {
+                    btn.classList.add('checked');
+                    icon.textContent = "✅";
+                    playSfx('check');
+                } else {
+                    // Bimbingan lembut jika memilih "Merosakkan kemudahan awam"
+                    btn.classList.add('gentle-note');
+                    icon.textContent = "💭";
+                    playSfx('gentle');
+                    fbBox.classList.remove('hidden');
+                    fbText.textContent = "Ingat ya, merosakkan kemudahan awam bukan adab yang baik. Kita perlu menjaga kemudahan kenderaan bersama-sama!";
+                }
+            }
+
+            // Kira bilangan adab tepat yang dipilih
+            const validCount = Array.from(appState.ref1Selected).filter(id => {
+                const found = ref1Items.find(x => x.id === id);
+                return found && found.isAdab;
+            }).length;
+
+            const counterEl = document.getElementById('ref1-counter');
+            counterEl.textContent = `Dipilih: ${validCount} / minimum 4 adab`;
+
+            if (validCount >= 4) {
+                counterEl.className = "text-xs sm:text-sm font-extrabold bg-emerald-500 text-white px-3 py-1 rounded-full";
+                fbBox.classList.remove('hidden');
+                fbText.textContent = `Syabas! Kamu telah mengenal pasti ${validCount} adab menaiki kenderaan dengan baik!`;
+            } else {
+                counterEl.className = "text-xs sm:text-sm font-extrabold bg-white text-sky-800 px-3 py-1 rounded-full border border-sky-200";
+                if (item.isAdab) fbBox.classList.add('hidden');
+            }
+            updateReflectionProgress();
+        }
+
+        // Logik Refleksi 2 (Pilih sekurang-kurangnya 2 kepentingan)
+        function toggleRef2(item) {
+            const btn = document.getElementById(`btn-${item.id}`);
+            const icon = document.getElementById(`icon-${item.id}`);
+            const fbBox = document.getElementById('ref2-feedback');
+            const fbText = document.getElementById('ref2-feedback-text');
+
+            if (appState.ref2Selected.has(item.id)) {
+                appState.ref2Selected.delete(item.id);
+                btn.classList.remove('checked', 'gentle-note');
+                icon.textContent = "⬜";
+                playSfx('click');
+            } else {
+                appState.ref2Selected.add(item.id);
+                if (item.isBenefit) {
+                    btn.classList.add('checked');
+                    icon.textContent = "✅";
+                    playSfx('check');
+                } else {
+                    btn.classList.add('gentle-note');
+                    icon.textContent = "💭";
+                    playSfx('gentle');
+                    fbBox.classList.remove('hidden');
+                    fbText.textContent = "Amalan beradab sebenarnya memudahkan semua orang, bukan menyusahkan penumpang lain. Cuba pilih kesan yang baik ya!";
+                }
+            }
+
+            const validCount = Array.from(appState.ref2Selected).filter(id => {
+                const found = ref2Items.find(x => x.id === id);
+                return found && found.isBenefit;
+            }).length;
+
+            const counterEl = document.getElementById('ref2-counter');
+            counterEl.textContent = `Dipilih: ${validCount} / minimum 2 kepentingan`;
+
+            if (validCount >= 2) {
+                counterEl.className = "text-xs sm:text-sm font-extrabold bg-emerald-500 text-white px-3 py-1 rounded-full";
+                fbBox.classList.remove('hidden');
+                fbText.textContent = "Tepat sekali! Mengamalkan adab menjadikan perjalanan selamat, disenangi orang lain dan diredai Allah SWT.";
+            } else {
+                counterEl.className = "text-xs sm:text-sm font-extrabold bg-white text-amber-800 px-3 py-1 rounded-full border border-amber-200";
+                if (item.isBenefit) fbBox.classList.add('hidden');
+            }
+            updateReflectionProgress();
+        }
+
+        // Logik Refleksi 3 (Nilai Amalan Saya - Tiada jawapan salah)
+        function selectRef3(item) {
+            playSfx('check');
+            appState.ref3Choice = item.id;
+
+            ref3Items.forEach(x => {
+                const el = document.getElementById(`btn-${x.id}`);
+                el.classList.remove('checked');
+            });
+            document.getElementById(`btn-${item.id}`).classList.add('checked');
+
+            const statusEl = document.getElementById('ref3-status');
+            statusEl.textContent = "Selesai dinilai ✓";
+            statusEl.className = "text-xs sm:text-sm font-extrabold bg-emerald-500 text-white px-3 py-1 rounded-full";
+
+            document.getElementById('ref3-feedback-icon').textContent = item.icon;
+            document.getElementById('ref3-feedback-text').textContent = item.feedback;
+            document.getElementById('ref3-feedback').classList.remove('hidden');
+
+            updateReflectionProgress();
+        }
+
+        // Logik Refleksi 4 (Azam Saya)
+        function useInspiration(text) {
+            playSfx('click');
+            const input = document.getElementById('azam-input');
+            input.value = text.trim();
+            handleAzamInput();
+        }
+
+        function handleAzamInput() {
+            const val = document.getElementById('azam-input').value.trim();
+            appState.azamText = val;
+            const statusEl = document.getElementById('ref4-status');
+            if (val.length >= 5) {
+                statusEl.textContent = "Azam ditulis ✓";
+                statusEl.className = "text-xs sm:text-sm font-extrabold bg-emerald-500 text-white px-3 py-1 rounded-full";
+            } else {
+                statusEl.textContent = "Tulis azam kamu";
+                statusEl.className = "text-xs sm:text-sm font-extrabold bg-white text-emerald-800 px-3 py-1 rounded-full border border-emerald-200";
+            }
+            updateReflectionProgress();
+        }
+
+        function saveAzam() {
+            const val = document.getElementById('azam-input').value.trim();
+            const fbBox = document.getElementById('ref4-feedback');
+            const fbText = document.getElementById('ref4-feedback-text');
+
+            if (val.length < 4) {
+                playSfx('gentle');
+                fbBox.classList.remove('hidden');
+                fbText.textContent = "Sila taip satu azam ringkas atau klik salah satu contoh inspirasi di atas ya!";
+                return;
+            }
+
+            appState.azamText = val;
+            playSfx('check');
+            fbBox.classList.remove('hidden');
+            fbText.textContent = `Alhamdulillah! Azam yang sangat murni: “${val}”. Semoga Allah SWT membantu kamu melaksanakannya!`;
+            updateReflectionProgress();
+        }
+
+        function isReflectionReady() {
+            const r1Valid = Array.from(appState.ref1Selected).filter(id => ref1Items.find(x => x.id === id)?.isAdab).length >= 4;
+            const r2Valid = Array.from(appState.ref2Selected).filter(id => ref2Items.find(x => x.id === id)?.isBenefit).length >= 2;
+            const r3Valid = Boolean(appState.ref3Choice);
+            const r4Valid = appState.azamText.trim().length >= 4;
+            return { r1Valid, r2Valid, r3Valid, r4Valid, allDone: r1Valid && r2Valid && r3Valid && r4Valid };
+        }
+
+        function updateReflectionProgress() {
+            const status = isReflectionReady();
+            const guide = document.getElementById('reflection-guide-msg');
+            if (status.allDone) {
+                guide.textContent = "Hebat! Semua 4 bahagian refleksi telah lengkap. Tekan butang di bawah untuk melihat lencana kamu!";
+                guide.className = "text-sm sm:text-base font-extrabold text-emerald-700 mb-3";
+            } else {
+                const pending = [];
+                if (!status.r1Valid) pending.push("Refleksi 1 (pilih min. 4 adab)");
+                if (!status.r2Valid) pending.push("Refleksi 2 (pilih min. 2 kepentingan)");
+                if (!status.r3Valid) pending.push("Refleksi 3 (nilai amalan)");
+                if (!status.r4Valid) pending.push("Refleksi 4 (tulis azam)");
+                guide.textContent = `Baki untuk dilengkapkan: ${pending.join(", ")}.`;
+                guide.className = "text-xs sm:text-sm font-bold text-slate-600 mb-3";
+            }
+        }
+
+        function completeReflection() {
+            const status = isReflectionReady();
+            if (!status.allDone) {
+                playSfx('gentle');
+                updateReflectionProgress();
+                // Tatal ke bahagian pertama yang belum lengkap
+                if (!status.r1Valid) document.getElementById('card-ref-1').scrollIntoView({ behavior: 'smooth' });
+                else if (!status.r2Valid) document.getElementById('card-ref-2').scrollIntoView({ behavior: 'smooth' });
+                else if (!status.r3Valid) document.getElementById('card-ref-3').scrollIntoView({ behavior: 'smooth' });
+                else if (!status.r4Valid) document.getElementById('card-ref-4').scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+
+            appState.reflectionCompleted = true;
+            document.getElementById('check-step-2').classList.remove('hidden');
+            document.getElementById('check-step-3').classList.remove('hidden');
+
+            // Paparkan azam murid di halaman penutup
+            if (appState.azamText) {
+                document.getElementById('final-azam-card').classList.remove('hidden');
+                document.getElementById('final-azam-text').textContent = `“${appState.azamText}”`;
+            }
+
+            navigateTo(3);
+            playSfx('fanfare');
+            burstParticles(null);
+        }
+
+        // ==========================================
+        // 5. NAVIGASI PETA JEJAK & EFEK VISUAL
+        // ==========================================
+        function navigateTo(step) {
+            playSfx('click');
+            appState.currentStep = step;
+
+            document.getElementById('section-1').classList.add('hidden');
+            document.getElementById('section-2').classList.add('hidden');
+            document.getElementById('section-3').classList.add('hidden');
+            document.getElementById(`section-${step}`).classList.remove('hidden');
+
+            const statusLabels = {
+                1: "Langkah 1 daripada 3: Ikrar Kendiri",
+                2: "Langkah 2 daripada 3: Papan Refleksi",
+                3: "Langkah 3 daripada 3: Penghargaan Musafir Beradab"
+            };
+            document.getElementById('progress-status-text').textContent = statusLabels[step];
+
+            [1, 2, 3].forEach(num => {
+                const navBtn = document.getElementById(`nav-step-${num}`);
+                if (num === step) {
+                    navBtn.className = "flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-extrabold text-xs sm:text-sm bg-sky-500 text-white shadow-sm transition-all";
+                } else {
+                    navBtn.className = "flex items-center justify-center gap-2 py-2 px-3 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all";
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function burstParticles(event) {
+            const icons = ['⭐', '🌟', '✨', '🏅', '💚'];
+            const cx = event ? event.clientX : window.innerWidth / 2;
+            const cy = event ? event.clientY : window.innerHeight / 2;
+
+            for (let i = 0; i < 24; i++) {
+                const p = document.createElement('div');
+                p.className = 'celebration-particle text-2xl sm:text-3xl';
+                p.textContent = icons[i % icons.length];
+                p.style.left = `${cx}px`;
+                p.style.top = `${cy}px`;
+
+                const angle = (Math.PI * 2 * i) / 24;
+                const dist = 70 + Math.random() * 170;
+                p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+                p.style.setProperty('--dy', `${Math.sin(angle) * dist - 35}px`);
+
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1300);
+            }
+        }
+
+        function resetAllActivities() {
+            playSfx('click');
+            appState.ikrarConfirmed = false;
+            appState.reflectionCompleted = false;
+            appState.ref1Selected.clear();
+            appState.ref2Selected.clear();
+            appState.ref3Choice = null;
+            appState.azamText = "";
+
+            document.getElementById('ikrar-confirmed-banner').classList.add('hidden');
+            document.getElementById('check-step-1').classList.add('hidden');
+            document.getElementById('check-step-2').classList.add('hidden');
+            document.getElementById('check-step-3').classList.add('hidden');
+
+            document.getElementById('ref1-counter').textContent = "Dipilih: 0 / minimum 4 adab";
+            document.getElementById('ref1-counter').className = "text-xs sm:text-sm font-extrabold bg-white text-sky-800 px-3 py-1 rounded-full border border-sky-200";
+            document.getElementById('ref1-feedback').classList.add('hidden');
+
+            document.getElementById('ref2-counter').textContent = "Dipilih: 0 / minimum 2 kepentingan";
+            document.getElementById('ref2-counter').className = "text-xs sm:text-sm font-extrabold bg-white text-amber-800 px-3 py-1 rounded-full border border-amber-200";
+            document.getElementById('ref2-feedback').classList.add('hidden');
+
+            document.getElementById('ref3-status').textContent = "Belum dipilih";
+            document.getElementById('ref3-status').className = "text-xs sm:text-sm font-extrabold bg-white text-orange-800 px-3 py-1 rounded-full border border-orange-200";
+            document.getElementById('ref3-feedback').classList.add('hidden');
+
+            document.getElementById('azam-input').value = "";
+            document.getElementById('ref4-status').textContent = "Tulis azam kamu";
+            document.getElementById('ref4-status').className = "text-xs sm:text-sm font-extrabold bg-white text-emerald-800 px-3 py-1 rounded-full border border-emerald-200";
+            document.getElementById('ref4-feedback').classList.add('hidden');
+
+            initReflectionBoard();
+            updateReflectionProgress();
+            navigateTo(1);
+        }
+
+        // Inisialisasi apabila halaman dimuatkan
+        window.onload = function() {
+            initReflectionBoard();
+            updateReflectionProgress();
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.getVoices();
+            }
+        };
+    </script>
+</body>
+</html>
